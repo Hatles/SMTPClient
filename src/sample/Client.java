@@ -4,6 +4,7 @@ import javafx.beans.InvalidationListener;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
@@ -25,6 +26,8 @@ public class Client extends Observable {
 
     private BufferedReader in;
     private DataOutputStream out;
+
+    final String[] enabledCipherSuites = { "SSL_DH_anon_WITH_RC4_128_MD5" };
 
     public static Client getInstance()
     {
@@ -48,9 +51,12 @@ public class Client extends Observable {
         this.password = password;
 
         try {
-            socket = socketFactory.createSocket(this.server, this.port);
+            SSLSocket sslSocket = (SSLSocket)socketFactory.createSocket(this.server, this.port);
+            sslSocket.setEnabledCipherSuites(enabledCipherSuites);
+            socket = sslSocket;
         } catch (IOException e) {
             e.printStackTrace();
+
             return false;
         }
         initBuffers();
@@ -131,7 +137,7 @@ public class Client extends Observable {
             while(reading)
             {
                 line = in.readLine();
-
+                log("read line: " + line);
                 if(line == null)
                 {
                     reading = false;

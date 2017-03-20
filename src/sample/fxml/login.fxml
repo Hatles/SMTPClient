@@ -28,7 +28,7 @@
             <Separator layoutX="50.0" layoutY="86.0" prefWidth="200.0" />
             <Button layoutX="124.0" layoutY="197.0" mnemonicParsing="false" onAction="#authenticateUser" text="Connect" />
             <TextField fx:id="serverField" layoutX="137.0" layoutY="27.0" promptText="Server" text="127.0.0.1" />
-            <TextField fx:id="portField" layoutX="137.0" layoutY="54.0" promptText="Port" text="1234" />
+            <TextField fx:id="portField" layoutX="137.0" layoutY="54.0" promptText="Port" text="1024" />
             <TextField fx:id="usernameField" layoutX="137.0" layoutY="95.0" promptText="Username" text="toto" />
             <PasswordField fx:id="passwordField" layoutX="137.0" layoutY="122.0" promptText="Password" />
          </children></Pane>
