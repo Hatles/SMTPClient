@@ -44,7 +44,7 @@ public class Login {
     // create a launcher method for this. Here I am going to take like below--
     public void launchLoginScene(Stage stage) {
         this.stage = stage;
-        stage.setTitle("POP3 Client Connect");
+        stage.setTitle("POP3S Client Connect");
         stage.setScene(scene);
         stage.setResizable(true);
 

@@ -34,7 +34,7 @@ public class Home {
 
     public void displayHomeScreen(Stage stage){
         this.stage = stage;
-        stage.setTitle("POP3 Client");
+        stage.setTitle("POP3S Client");
         stage.setScene(scene);
 
         // Must write
