@@ -15,12 +15,13 @@
       <RowConstraints />
    </rowConstraints>
    <children>
-      <Pane prefHeight="300.0" prefWidth="300.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+      <Pane prefHeight="300.0" prefWidth="600.0" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
          <children>
-            <TableView fx:id="messagesTable" layoutX="50.0" layoutY="50.0" prefHeight="200.0" prefWidth="200.0">
+            <TableView fx:id="table_messages" layoutX="50.0" layoutY="50.0" prefHeight="200.0" prefWidth="500.0">
               <columns>
-                <TableColumn fx:id="dateCol" editable="false" maxWidth="50.0" minWidth="50.0" prefWidth="50.0" resizable="false" sortable="false" style="width: 100%;" text="Date" />
-                  <TableColumn fx:id="messagesCol" editable="false" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" resizable="false" sortable="false" style="width: 100%;" text="Messages" />
+                <TableColumn fx:id="dateCol" editable="false" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" resizable="false" sortable="false" style="width: 100%;" text="Date" />
+                  <TableColumn fx:id="dateCol1" editable="false" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" resizable="false" sortable="false" style="width: 100%;" text="From" />
+                  <TableColumn fx:id="messagesCol" editable="false" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" sortable="false" style="width: 100%;" text="Messages" />
               </columns>
             </TableView>
          </children>

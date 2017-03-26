@@ -34,6 +34,7 @@ public class Client extends Observable {
     final String[] enabledCipherSuites = { "SSL_DH_anon_WITH_RC4_128_MD5" };
     private int nbrTry;
     private String timestamp;
+    private Integer nbrMessages;
 
     public static Client getInstance()
     {
@@ -49,6 +50,7 @@ public class Client extends Observable {
         this.socketFactory = SSLSocketFactory.getDefault();
         this.connected = false;
         this.nbrTry = 0;
+        this.nbrMessages = 0;
     }
 
     public boolean connect(String server, String port, String username, String password)
@@ -148,7 +150,15 @@ public class Client extends Observable {
         List<String> lines = read();
         String[] parts = lines.get(0).split(" ");
 
-        return parts[0].toUpperCase().equals("+OK");
+        if(parts[0].toUpperCase().equals("+OK"))
+        {
+            if(parts[1].toLowerCase().equals("maildrop") && parts[2].toLowerCase().equals("has"))
+            {
+                nbrMessages = Integer.valueOf(parts[3]);
+            }
+            return true;
+        }
+        else return false;
     }
 
     public void initBuffers()
@@ -177,6 +187,26 @@ public class Client extends Observable {
         System.exit(0);
     }
 
+    public List<Message> getMessages()
+    {
+        List<Message> messages = new ArrayList<>();
+
+        for (int i = 0; i < this.nbrMessages; i++) {
+            try {
+                send("RETR "+(i+1));
+                try {
+                    messages.add(Utils.buildMessage(read()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return messages;
+    }
+
     public void log(String m)
     {
         System.out.println(m);
@@ -197,6 +227,7 @@ public class Client extends Observable {
         if(message != null && !message.equals(""))
             writeLine(message);
         writeLine("");
+        writeLine("");
         out.flush();
         log("sending message");
     }
@@ -215,9 +246,12 @@ public class Client extends Observable {
         {
             log("waiting message");
             boolean reading = true;
+            int nullLine = 0;
+            boolean head = true;
             while(reading)
             {
                 line = in.readLine();
+                System.out.println("line:"+line);
                 if(line == null)
                 {
                     reading = false;
@@ -226,9 +260,16 @@ public class Client extends Observable {
                 else if(line.length() > 0)
                 {
                     lines.add(line);
+                    nullLine = 0;
+                    head = false;
                 }
-                else
-                    reading = false;
+                else if(!head)
+                {
+                    nullLine++;
+                    if(nullLine > 1)
+                        reading = false;
+                    else lines.add(line);
+                }
             }
 
             if(lines.size() > 0)

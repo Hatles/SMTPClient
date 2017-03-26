@@ -40,6 +40,7 @@ public abstract class BaseController {
 
     // create a launcher method for this. Here I am going to take like below--
     public void launchScene(Stage stage) {
+        stage.hide();
         this.stage = stage;
         stage.setTitle(title);
         stage.setScene(scene);
@@ -48,7 +49,7 @@ public abstract class BaseController {
         this.init();
 
         //Don't forget to add below code in every controller
-        stage.hide();
+
         stage.show();
     }
 }
