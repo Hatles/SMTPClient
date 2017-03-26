@@ -11,25 +11,24 @@ import javafx.scene.control.TextField;
  * Created by kifkif on 20/03/2017.
  */
 
-public class LoginController extends BaseController
-{
-    @FXML private TextField usernameField;
-    @FXML private TextField passwordField;
-    @FXML private Button btn_login;
+public class ConnexionController extends BaseController{
 
+    @FXML private TextField serverField;
+    @FXML private TextField portField;
+    @FXML private Button btn_connect;
 
-    public LoginController() throws Exception {
-        super("Login", "login", 300, 150);
+    public ConnexionController() throws Exception {
+        super("Connexion", "connexion", 300, 150);
     }
 
-    @FXML
-    public void authenticateUser(ActionEvent actionEvent)
+    public void connect(ActionEvent actionEvent)
     {
         Client client = Client.getInstance();
 
-        if(client.login(usernameField.getText(), passwordField.getText())) {
+        if(client.connect(serverField.getText(), portField.getText()))
+        {
             try {
-                new HomeController().launchScene(stage);
+                new LoginController().launchScene(stage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -37,9 +36,9 @@ public class LoginController extends BaseController
         else
         {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Login Error");
+            alert.setTitle("Connection Error");
             alert.setHeaderText(null);
-            alert.setContentText("Password or username invalid. "+client.getTry()+" login tries remaining.");
+            alert.setContentText("Error during connection to the server.");
 
             alert.showAndWait();
         }
@@ -47,10 +46,10 @@ public class LoginController extends BaseController
 
     @Override
     protected void init() {
-        btn_login.setOnAction(new EventHandler<ActionEvent>() {
+        btn_connect.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                authenticateUser(event);
+                connect(event);
             }
         });
     }

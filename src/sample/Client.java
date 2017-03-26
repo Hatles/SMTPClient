@@ -8,7 +8,10 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 
@@ -26,8 +29,11 @@ public class Client extends Observable {
 
     private BufferedReader in;
     private DataOutputStream out;
+    private boolean connected;
 
     final String[] enabledCipherSuites = { "SSL_DH_anon_WITH_RC4_128_MD5" };
+    private int nbrTry;
+    private String timestamp;
 
     public static Client getInstance()
     {
@@ -41,33 +47,108 @@ public class Client extends Observable {
     protected Client()
     {
         this.socketFactory = SSLSocketFactory.getDefault();
+        this.connected = false;
+        this.nbrTry = 0;
     }
 
     public boolean connect(String server, String port, String username, String password)
     {
-        this.server = server;
-        this.port = Utils.getPort(port);
-        this.username = username;
-        this.password = password;
-
-        try {
-            SSLSocket sslSocket = (SSLSocket)socketFactory.createSocket(this.server, this.port);
-            sslSocket.setEnabledCipherSuites(enabledCipherSuites);
-            socket = sslSocket;
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            return false;
-        }
-        initBuffers();
+        connect(server, port);
 
         return processConnection();
     }
 
-    private boolean processConnection() {
+    public boolean connect(String server, String port)
+    {
+        this.server = server;
+        this.port = Utils.getPort(port);
+
+        try {
+            SSLSocket sslSocket = (SSLSocket)socketFactory.createSocket(this.server, this.port);
+            sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
+            sslSocket.startHandshake();
+            socket = sslSocket;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        initBuffers();
+
         List<String> lines = read();
 
-        return true;
+        String[] parts = lines.get(0).split(" ");
+        if(parts[0].toUpperCase().equals("+OK"))
+        {
+            timestamp = parts[parts.length-1];
+            connected = true;
+            this.nbrTry = 0;
+            return true;
+        }
+        else 
+            return false;
+    }
+
+    public boolean login(String username, String password)
+    {
+        if(connected) {
+            this.username = username;
+            this.password = password;
+
+            if(processConnection())
+                return true;
+            else
+            {
+                nbrTry++;
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public boolean quit()
+    {
+        if(connected) {
+            try {
+                send("QUIT");
+                List<String> lines = read();
+                String[] parts = lines.get(0).split(" ");
+
+                return parts[0].toUpperCase().equals("+OK");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean processConnection()
+    {
+        byte[] controlCrypt = new byte[0];
+        try {
+            controlCrypt = MessageDigest.getInstance("MD5").digest(timestamp.concat(password).getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
+        }
+        String encryptPassword = Utils.bytesToHex(controlCrypt).toLowerCase();
+        try {
+            send("APOP "+username+" "+encryptPassword);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        List<String> lines = read();
+        String[] parts = lines.get(0).split(" ");
+
+        return parts[0].toUpperCase().equals("+OK");
     }
 
     public void initBuffers()
@@ -137,7 +218,6 @@ public class Client extends Observable {
             while(reading)
             {
                 line = in.readLine();
-                log("read line: " + line);
                 if(line == null)
                 {
                     reading = false;
@@ -163,5 +243,9 @@ public class Client extends Observable {
         }
 
         return lines;
+    }
+
+    public int getTry() {
+        return 3-nbrTry;
     }
 }
