@@ -161,6 +161,28 @@ public class Client extends Observable {
         else return false;
     }
 
+    public int stats()
+    {
+        try {
+            send("STAT");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        List<String> lines = read();
+        String[] parts = lines.get(0).split(" ");
+
+        if(parts[0].toUpperCase().equals("+OK"))
+        {
+            if(parts[1].toLowerCase().equals("maildrop") && parts[2].toLowerCase().equals("has"))
+            {
+                nbrMessages = Integer.valueOf(parts[3]);
+            }
+            return nbrMessages;
+        }
+        else return 0;
+    }
+
     public void initBuffers()
     {
         try {

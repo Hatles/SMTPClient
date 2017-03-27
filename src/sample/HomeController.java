@@ -44,7 +44,11 @@ public class HomeController extends BaseController{
             }
         });
 
-        List<Message> messages = Client.getInstance().getMessages();
+        Client client = Client.getInstance();
+
+        int nbrMessages = client.stats();
+
+        List<Message> messages = client.getMessages();
         data.addAll(messages);
 
         table_messages.setRowFactory( tv -> {
@@ -103,6 +107,13 @@ public class HomeController extends BaseController{
         );
 
         table_messages.setItems(data);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Messages Stat");
+        alert.setHeaderText(null);
+        alert.setContentText("You have "+nbrMessages+" message(s).");
+
+        alert.showAndWait();
     }
 
     private void quit() {
