@@ -309,6 +309,6 @@ public class Client extends Observable {
     }
 
     public int getTry() {
-        return 3-nbrTry;
+        return 4-nbrTry;
     }
 }
